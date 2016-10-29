@@ -37,3 +37,8 @@ mxnet/deps
 mxnet/ps-lite/build
 .bootstrap
 .check
+*.pyc
+
+# mxnet examples
+mxnet/example
+example/mnist
