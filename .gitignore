@@ -27,3 +27,13 @@
 *.exe
 *.out
 *.app
+
+# Protobuf Files
+*.pb.cc
+
+# Build artefacts
+mxnet/build
+mxnet/deps
+mxnet/ps-lite/build
+.bootstrap
+.check
