@@ -34,9 +34,6 @@ doc/latex
 doc/doc
 docs/web-data
 
-#dmlc
-config.mk
-
 *.pyc
 .Rhistory
 *log
@@ -110,17 +107,6 @@ scala-package/*/*/target/
 !scala-package/*/bin
 *.bak
 */node_modules/
-
-# Eclipse project config
-.project
-.cproject
-.pydevproject
-CMakeFiles
-cmake_install.cmake
-dmlc-core
-ps-lite
-nnvm
-lib
 
 # Visual Studio Code
 .vscode
