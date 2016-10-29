@@ -8,7 +8,7 @@ VER := $(shell lsb_release -sr)
 	@echo "Installing build-essential, libatlas-base-dev, libopencv-dev..."
 	@sudo apt-get update
 	@sudo apt-get install -y build-essential libatlas-base-dev libopencv-dev \
-	    python-numpy python-setuptools
+	    python-numpy python-setuptools unzip
 	@touch .bootstrap
 
 .PHONY: mxnet all
@@ -19,6 +19,9 @@ mxnet: .check .bootstrap
 
 clean:
 	cd mxnet; make clean
+
+install: .bootstrap
+	cd mxnet/python; sudo python setup.py install
 
 .check:
 ifneq ($(OS), Ubuntu)
