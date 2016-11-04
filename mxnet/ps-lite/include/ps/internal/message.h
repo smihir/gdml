@@ -117,6 +117,7 @@ struct Control {
     if (cmd == ACK) ss << ", msg_sig=" << msg_sig;
     return ss.str();
   }
+public:
   /** \brief all commands */
   enum Command { EMPTY, TERMINATE, ADD_NODE, BARRIER, ACK, HEARTBEAT };
   /** \brief the command */

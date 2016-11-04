@@ -2,29 +2,41 @@ import find_mxnet
 import mxnet as mx
 import inspect
 from numpy import *
-import os, sys
+import os, sys,time
 
 
 rate = 0.0001
 
 points = genfromtxt("data/sample_data.csv", delimiter=",")
 
-m = mx.sym.Variable('m')
-b = mx.sym.Variable('b')
-x = mx.sym.Variable('x')
-
-y = (m * x) + b
 
 shape = (3,4)
-kv = mx.kv.create('local')
-kv.init(3, mx.nd.ones(shape)*2)
-a = mx.nd.zeros(shape)
+kv = mx.kv.create('dist_sync')
+kv.init(3, mx.nd.ones(shape)*1)
+kv.init(4, mx.nd.ones(shape)*1)
+a = mx.nd.ones(shape)
 
-kv.pull(3,out = a)
+if(kv.rank == 0):
+	l = list()
+#else:
+#kv.pull(3,out = a)
+#print a.asnumpy()
+
+a = a * 8
+kv.push(3, a)
+print "After push"
+b = mx.nd.zeros(shape)
+time.sleep(1)
+kv.pull(3, out = b)
 print a.asnumpy()
 
-kv.push(3, a * 8)
-kv.pull(3, out = a)
+time.sleep(1)
+c = a * 8
+kv.push(4, c)
+print "After push"
+d = mx.nd.zeros(shape)
+time.sleep(1)
+kv.pull(4, out = d)
 print a.asnumpy()
 
 print "rank = {0}".format(kv.rank)
