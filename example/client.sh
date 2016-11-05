@@ -1,0 +1,6 @@
+export DMLC_ROLE=worker
+export DMLC_NUM_WORKER=1
+export DMLC_NUM_SERVER=1
+export DMLC_PS_ROOT_URI=10.254.0.152
+export DMLC_PS_ROOT_PORT=9092
+export PS_VERBOSE=1

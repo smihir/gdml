@@ -95,6 +95,7 @@ class KVStore(object):
         >>> keys = [5, 7, 9]
         >>> kv.init(keys, [mx.nd.ones(shape)]*len(keys))
         """
+        print "INITIALIZING kvstore!!!"
         ckeys, cvals = _ctype_key_value(key, value)
         check_call(_LIB.MXKVStoreInit(
             self.handle, mx_uint(len(ckeys)), ckeys, cvals))
