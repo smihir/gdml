@@ -406,6 +406,7 @@ template <typename Val>
 void KVWorker<Val>::DefaultSlicer(
     const KVPairs<Val>& send, const std::vector<Range>& ranges,
     typename KVWorker<Val>::SlicedKVs* sliced) {
+  // NOTE(smihir): default slicer code.
   sliced->resize(ranges.size());
 
   // find the positions in msg.key
@@ -461,6 +462,10 @@ void KVWorker<Val>::DefaultSlicer(
 
 template <typename Val>
 void KVWorker<Val>::Send(int timestamp, bool push, int cmd, const KVPairs<Val>& kvs) {
+  // NOTE(smihir): slice send message in worker. Slicing is done using a default
+  // slicer. (conjecture)For now there seems to be no way to provide a user
+  // defined slicer.
+
   // slice the message
   SlicedKVs sliced;
   slicer_(kvs, Postoffice::Get()->GetServerKeyRanges(), &sliced);
@@ -475,6 +480,7 @@ void KVWorker<Val>::Send(int timestamp, bool push, int cmd, const KVPairs<Val>& 
     RunCallback(timestamp);
   }
 
+  // NOTE(smihir): send sliced data to every server.
   for (size_t i = 0; i < sliced.size(); ++i) {
     const auto& s = sliced[i];
     if (!s.first) continue;
