@@ -133,6 +133,7 @@ int Van::Send(const Message& msg) {
 }
 
 void Van::Receiving() {
+  // NOTE(smihir): heartbeat timeout check
   const char* heartbeat_timeout_val = Environment::Get()->find("PS_HEARTBEAT_TIMEOUT");
   const int heartbeat_timeout = heartbeat_timeout_val ? atoi(heartbeat_timeout_val) : 5;
   Meta nodes;  // for scheduler usage
@@ -400,6 +401,7 @@ void Van::UnpackMeta(const char* meta_buf, int buf_size, Meta* meta) {
 }
 
 void Van::Heartbeat() {
+  // NOTE(smihir): send heartbeat
   const char* val = Environment::Get()->find("PS_HEARTBEAT_INTERVAL");
   const int interval = val ? atoi(val) : 5;
   while (interval > 0 && ready_) {

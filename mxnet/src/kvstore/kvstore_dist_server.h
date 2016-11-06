@@ -119,6 +119,7 @@ class KVStoreDistServer {
 
  private:
   void CommandHandle(const ps::SimpleData& recved, ps::SimpleApp* app) {
+    // NOTE(smihir): kvstore server handle commands.
     if (recved.head == kStopServer) {
       exec_.Stop();
     } else if (recved.head == kSyncMode) {
@@ -127,6 +128,8 @@ class KVStoreDistServer {
       // let the main thread to execute ctrl, which is necessary for python
       exec_.Exec([this, recved]() {
           CHECK(controller_);
+          // NOTE(smihir): controller is specfied by _controller in 
+          // kvstore_server.py for python bindings.
           controller_(recved.head, recved.body);
         });
     }
@@ -136,6 +139,7 @@ class KVStoreDistServer {
   void DataHandle(const ps::KVMeta& req_meta,
                   const ps::KVPairs<real_t>& req_data,
                   ps::KVServer<real_t>* server) {
+    // NOTE(smihir): kvstore server handle data.
     // do some check
     CHECK_EQ(req_data.keys.size(), (size_t)1);
     if (req_meta.push) {
@@ -176,6 +180,9 @@ class KVStoreDistServer {
 
         merged.request.push_back(req_meta);
 
+        // NOTE(smihir): use the updater to mutate the values,
+        // updater is set using set_optimizer() kv api in python
+        // bindings.
         if (merged.request.size() == (size_t)ps::NumWorkers()) {
           // let the main thread to execute updater_, which is necessary for
           // python

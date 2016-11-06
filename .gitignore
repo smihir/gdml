@@ -32,6 +32,7 @@ sftp-config.json
 
 # Protobuf Files
 *.pb.cc
+*.pb.h
 
 # Build artefacts
 mxnet/build
@@ -40,6 +41,7 @@ mxnet/ps-lite/build
 .bootstrap
 .check
 *.pyc
+tags
 
 # mxnet examples
 mxnet/example
