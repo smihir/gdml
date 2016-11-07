@@ -6,6 +6,7 @@ import os
 def fit(args, network, data_loader, batch_end_callback=None):
     # kvstore
     kv = mx.kvstore.create(args.kv_store)
+    kv.set_optimizer(mx.optimizer.Test())
 
     # logging
     head = '%(asctime)-15s Node[' + str(kv.rank) + '] %(message)s'
@@ -55,6 +56,7 @@ def fit(args, network, data_loader, batch_end_callback=None):
         mx.gpu(int(i)) for i in args.gpus.split(',')]
 
     epoch_size = args.num_examples / args.batch_size
+    print(epoch_size, args.num_examples, args.batch_size)
 
     if args.kv_store == 'dist_sync':
         epoch_size /= kv.num_workers
@@ -85,8 +87,8 @@ def fit(args, network, data_loader, batch_end_callback=None):
 
     eval_metrics = ['accuracy']
     ## TopKAccuracy only allows top_k > 1
-    for top_k in [5, 10, 20]:
-        eval_metrics.append(mx.metric.create('top_k_accuracy', top_k = top_k))
+    #for top_k in [5, 10, 20]:
+    #    eval_metrics.append(mx.metric.create('top_k_accuracy', top_k = top_k))
 
     if batch_end_callback is not None:
         if not isinstance(batch_end_callback, list):
