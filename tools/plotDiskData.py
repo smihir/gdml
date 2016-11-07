@@ -3,10 +3,15 @@ import csv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
+
+if len(sys.argv) == 1:
+    print("enter directory")
+    sys.exit(1)
 
 vms = ["vm1", "vm2", "vm3", "vm4", "vm5"]
 disks = ["vda1"]
-base_path = "measurements"
+base_path = sys.argv[1]
 ReadDiskActivity = []
 WriteDiskActivity = []
 
@@ -54,5 +59,5 @@ xlabels = ['', '1', '2', '3', '4', '5']
 #ax1.set_xticklabels(xlabels, rotation='vertical')
 ax1.set_xticklabels(xlabels)
 #ax1.legend((rects1[0], rects2[0]), ('Unoptimized Binary', 'Optimized Binary'), bbox_to_anchor=(1.05, 1), loc='upper right', shadow=True)
-ax1.legend((rects1[0], rects2[0]), ('Reads', 'Writes'), shadow=True, loc='upper left')
+ax1.legend((rects1[0], rects2[0]), ('Reads', 'Writes'), shadow=True, loc='upper right')
 plt.show()
