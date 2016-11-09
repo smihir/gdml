@@ -134,6 +134,10 @@ def parse_args():
                         help='the number of epoch to factor the lr, could be .5')
     return parser.parse_args()
 
+def run():
+    net = get_mlp()
+    # train
+    train_model.fit(args, net, get_iterator(data_shape))
 
 if __name__ == '__main__':
     args = parse_args()
