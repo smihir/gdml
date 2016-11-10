@@ -40,7 +40,6 @@ class OneHotEncoderCOO():
         outdat = []
 
         for i, col in enumerate(x.T):
-            print col
             matrow = []
             matcol = []
             matdata = []
