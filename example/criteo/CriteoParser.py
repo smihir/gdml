@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
+import mxnet as mx
 sys.path.insert(0, '../../tools')
 import OneHotEncoderCOO
 
@@ -19,7 +20,7 @@ def ParseCriteoDataFile(filepath):
 
 	# Get categorical feature data
 	catFeatureCols = np.arange(14,40)
-	criteoCatFeatures = pd.read_csv("day_0_10000.txt",delimiter="	",usecols=catFeatureCols,header=None)
+	criteoCatFeatures = pd.read_csv(filepath,delimiter="	",usecols=catFeatureCols,header=None)
 	criteoCatFeatures = criteoCatFeatures.fillna(value=0)
 	np_criteoCatFeatures = criteoCatFeatures.as_matrix()
 
@@ -31,6 +32,11 @@ def ParseCriteoDataFile(filepath):
 
 	return {'labels': np_criteoIntFeatures[:,0], 
 			'features': np.concatenate((np_criteoIntFeatures[:,1:],np_criteoCatFeatures.toarray()),axis=1)}
+
+def SaveCriteoDataAsNDArray(filepath,outfile):
+	criteoData = ParseCriteoDataFile(filepath)
+	mx.nd.save(outfile, {'labels' : mx.nd.array(criteoData['labels']), 'features' : mx.nd.array(criteoData['features'])})
+	return
 
 
 # Parse a file with the criteo dataset format:
