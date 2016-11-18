@@ -1,3 +1,10 @@
+
+# binaries
+mxnet/bin
+
+# criteo data
+example/criteo/data
+
 core
 sftp-config.json
 
