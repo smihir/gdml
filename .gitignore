@@ -46,4 +46,4 @@ tags
 
 # mxnet examples
 mxnet/example
-example/mnist
+example/mnist/mnist
