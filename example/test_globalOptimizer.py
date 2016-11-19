@@ -3,7 +3,6 @@ from pprint import pprint
 
 import numpy as np
 
-import find_mxnet
 import mxnet as mx
 import logging
 
