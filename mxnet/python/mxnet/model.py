@@ -175,7 +175,6 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
     -----
     - This function will inplace update the NDArrays in arg_params and aux_states.
     """
-    print "Starting multiDevice fit"
     if logger is None:
         logger = logging
     executor_manager = DataParallelExecutorManager(symbol=symbol,
@@ -208,7 +207,6 @@ def _train_multi_device(symbol, ctx, arg_names, param_names, aux_names,
     # Now start training
     train_data.reset()
     for epoch in range(begin_epoch, end_epoch):
-        print epoch
         # Training phase
         tic = time.time()
         eval_metric.reset()
