@@ -242,6 +242,9 @@ class DataParallelExecutorGroup(object):
 
     def load_data_batch(self, data_batch):
         """ load data and labels into arrays """
+        print "in exec manager...."
+        print data_batch
+        print self.data_arrays
         _load_data(data_batch, self.data_arrays)
         _load_label(data_batch, self.label_arrays)
 

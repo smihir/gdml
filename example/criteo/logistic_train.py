@@ -27,13 +27,17 @@ train = mx.io.NDArrayIter(data=dataset['features'][0:trainSize],label=dataset['l
 test = mx.io.NDArrayIter(data=dataset['features'][trainSize:],label=dataset['labels'][trainSize:],batch_size=batchSize,shuffle=True)
 
 # # configure a two layer neuralnetwork
+#data = mx.symbol.Variable('data')
+#fc1  = mx.symbol.FullyConnected(data = data, num_hidden=64)
+#act1 = mx.symbol.Activation(data = fc1, act_type="relu")
+#fc2  = mx.symbol.FullyConnected(data = act1, num_hidden = 32)
+#act2 = mx.symbol.Activation(data = fc2, act_type="relu")
+#fc3  = mx.symbol.FullyConnected(data = act2, num_hidden=2)
+#mlp  = mx.symbol.SoftmaxOutput(data = fc3, name = 'softmax')
 data = mx.symbol.Variable('data')
-fc1  = mx.symbol.FullyConnected(data = data, num_hidden=64)
-act1 = mx.symbol.Activation(data = fc1, act_type="relu")
-fc2  = mx.symbol.FullyConnected(data = act1, num_hidden = 32)
-act2 = mx.symbol.Activation(data = fc2, act_type="relu")
-fc3  = mx.symbol.FullyConnected(data = act2, num_hidden=2)
-mlp  = mx.symbol.SoftmaxOutput(data = fc3, name = 'softmax')
+#flat = mx.symbol.Flatten(name='flat', data=data)
+fc1  = mx.symbol.FullyConnected(data = data, num_hidden=1)
+mlp  = mx.symbol.LogisticRegressionOutput(data = fc1, name = 'softmax')
 
 # create a model
 model = mx.model.FeedForward(symbol = mlp,
@@ -51,5 +55,8 @@ print model.fit(X                  = train,
         eval_metric        = eval_metrics,
         batch_end_callback = batch_end_callback)
 
-print model.score(X=test)
+out = model.predict(X=test)
+
+for i in out:
+    print i
 
