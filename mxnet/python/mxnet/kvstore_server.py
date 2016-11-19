@@ -7,6 +7,19 @@ import pickle
 import logging
 from .base import _LIB, check_call
 from .kvstore import create
+import zmq
+
+def connect():
+    zmqContext = zmq.Context()
+    sock = zmqContext.socket(zmq.REQ)
+    logging.info('hierarchical optimizer: connecting to worker...')
+    try:
+        sock.connect("tcp://127.0.0.1:5678")
+        logging.info('hierarchical optimizer: connected to worker')
+    except Exception as e:
+        logging.info('hierarchical optimizer: connection failed -> {}'.format(str(e)))
+        sock = None
+    return sock
 
 class KVStoreServer(object):
     """The key-value store server"""
@@ -39,6 +52,11 @@ class KVStoreServer(object):
                 except:
                     raise
                 self.kvstore.set_optimizer(optimizer)
+                if hasattr(optimizer, 'hierarchical'):
+                    logging.info('hierarchical optimizer received')
+                    if optimizer.hierarchical is True:
+                        optimizer.sock = connect()
+
             else:
                 print ("server %d, unknown command (%d, %s)" % (
                     self.kvstore.rank, cmd_id, cmd_body))
