@@ -14,7 +14,7 @@ def getAccuracy(num_correct_predictions, num_examples_criteo_test):
     print "Accuracy: {0}, Error: {1}".format(accuracy, error)
     return (accuracy,error)
 
-num_workers = 4
+num_workers = 5
 
 # GRADIENT DESCENT PARAMETERS
 learning_rate = 0.01 # eta parameter
@@ -23,7 +23,7 @@ batch_size = 1 # Number of examples read at once
 batch_size_test = 1000 # Number of examples read at once
 batch_size_validation = 10000 # Number of examples read at once
 
-DATA_DIR="/home/ubuntu/nfs/criteo_data/criteo-tfr/"
+DATA_DIR="/home/ubuntu/workspace/criteo_data/"
 # Files to read
 filenames_criteo = [DATA_DIR + "tfrecords00"]
 filenames_criteo_test = [DATA_DIR + "tfrecords22-tiny"]
@@ -141,7 +141,7 @@ with g.as_default():
 
     # START SESSION
     config = tf.ConfigProto(log_device_placement=True)
-    with tf.Session("grpc://vm-28-1:2222", config=config) as sess:
+    with tf.Session("grpc://node0:2222", config=config) as sess:
         sess.run(tf.initialize_all_variables())
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)

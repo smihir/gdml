@@ -9,7 +9,7 @@ import os
 import sys
 
 
-sys.path.append("/home/ubuntu/nfs/cs838_assignment3/")
+sys.path.append("../")
 from io_utils import *
 
 
@@ -28,14 +28,11 @@ batch_size = 100 # Number of examples read at once
 batch_size_test = 1000 # Number of examples read at once
 batch_size_validation = 10000 # Number of examples read at once
 
-# DATA PARAMETERS
-# filenames = ["/home/ubuntu/nfs/cs838_assignment3/data/toyData.csv"]
-# validation_filenames = ["/home/ubuntu/nfs/cs838_assignment3/data/toyValidation.csv"]
-
+DATA_DIR="/home/ubuntu/workspace/criteo_data/"
 # Files to read
-filenames_criteo = ["/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords00"]
-filenames_criteo_test = ["/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords22-tiny"] 
-filenames_criteo_validation = ["/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords22"]
+filenames_criteo = [DATA_DIR + "tfrecords00"]
+filenames_criteo_test = [DATA_DIR + "tfrecords22-tiny"]
+filenames_criteo_validation = [DATA_DIR + "tfrecords22"]
 num_features = 33762578 # Total number of features after one hot encoding
 
 # I/O PARAMETERES
@@ -85,7 +82,7 @@ with g.as_default():
             for findex in range(i * num_workers, (i * num_workers) + num_workers):
                 if findex > 21:
                     break
-                fnames.append("/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords%02d" % findex)
+                fnames.append(DATA_DIR + "tfrecords%02d" % findex)
 
             print('node[{}]: process files: {}'.format(i, fnames))
 
@@ -149,7 +146,7 @@ with g.as_default():
 
     # START SESSION
     config = tf.ConfigProto(log_device_placement=True)
-    with tf.Session("grpc://vm-28-1:2222", config=config) as sess:
+    with tf.Session("grpc://node0:2222", config=config) as sess:
         sess.run(tf.initialize_all_variables())
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)

@@ -10,15 +10,13 @@ FLAGS = tf.app.flags.FLAGS
 #
 tf.logging.set_verbosity(tf.logging.DEBUG)
 
-GROUP_NUM=28
-
 clusterSpec = tf.train.ClusterSpec({
     "worker" : [
-        "vm-%d-1:2222" % GROUP_NUM,
-        "vm-%d-2:2222" % GROUP_NUM,
-        "vm-%d-3:2222" % GROUP_NUM,
-        "vm-%d-4:2222" % GROUP_NUM,
-        "vm-%d-5:2222" % GROUP_NUM
+        "node0:2222",
+        "node1:2222",
+        "node2:2222",
+        "node3:2222",
+        "node4:2222"
     ]
 })
 
