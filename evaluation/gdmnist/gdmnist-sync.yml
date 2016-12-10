@@ -41,6 +41,8 @@ windows:
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdmnist
             - source setup/server_dc1.sh
             - python -c "import mxnet"
+            - pkill -9 python
+            - ssh vm-28-1 pkill -9 python
         - sched_dc2:
             - ssh vm-28-4
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdmnist
@@ -51,6 +53,7 @@ windows:
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdmnist
             - source setup/server_dc2.sh
             - python -c "import mxnet"
+            - pkill -9 python
   - workers:
       panes:
         - worker1_dc1:
@@ -82,7 +85,7 @@ windows:
       - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdmnist/scripts
       - source run.sh
       - start_sslogs
-      - while [ ! -z "`ps aux | grep -v grep | grep mxnet | head -1`" ]; do sleep 1; echo "waiting for `pgrep python`"; done
+      - while [ ! -z "`pgrep python`" ]; do sleep 1; echo "waiting for `pgrep python`"; done
       - stop_sslogs
       - mkdir -p sync_logs_run
       - mv /home/ubuntu/smihir/dc1/gdml/evaluation/gdmnist/scripts/sslogs sync_logs_run/sslogs
