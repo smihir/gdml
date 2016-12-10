@@ -88,8 +88,8 @@ def get_iterator(data_shape):
             batch_size  = args.batch_size,
             shuffle     = True,
             flat        = flat,
-            num_parts   = 2,
-            part_index  = 0)
+            num_parts   = kv.num_workers * args.num_datacenters,
+            part_index  = kv.rank)
 
         val = mx.io.MNISTIter(
             image       = data_dir + "t10k-images-idx3-ubyte",
@@ -132,6 +132,12 @@ def parse_args():
                         help='times the lr with a factor for every lr-factor-epoch epoch')
     parser.add_argument('--lr-factor-epoch', type=float, default=1,
                         help='the number of epoch to factor the lr, could be .5')
+    parser.add_argument('--log-file', type=str, default=None,
+                        help='file to write the logs in')
+    parser.add_argument('--log-dir', type=str, default='.',
+                        help='file to write the logs in')
+    parser.add_argument('--num-datacenters', type=int, default=2,
+                        help='number of datacenters the training is running in')
     return parser.parse_args()
 
 def run():
