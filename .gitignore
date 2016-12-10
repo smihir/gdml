@@ -55,3 +55,4 @@ tags
 mxnet/example
 example/mnist/mnist
 example/gdmnist/mnist
+evaluation/mnist/mnist
