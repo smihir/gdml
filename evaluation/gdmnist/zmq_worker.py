@@ -28,11 +28,11 @@ def main():
         message = sock.recv()
         index, weight = pickle.loads(message)
         if not index in kv_initialized:
-            logging.info('index {}, init weight size {}'.format(index, weight.shape))
+            #logging.info('index {}, init weight size {}'.format(index, weight.shape))
             kv.init(index, weight)
             kv_initialized[index] = True
         else:
-            logging.info('index {}, push weight size {}'.format(index, weight.shape))
+            #logging.info('index {}, push weight size {}'.format(index, weight.shape))
             kv.push(index, weight)
         new = mx.nd.zeros(weight.shape)
         kv.pull(index, new)
