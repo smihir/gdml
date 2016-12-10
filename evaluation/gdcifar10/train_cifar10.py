@@ -35,6 +35,8 @@ parser.add_argument('--log-file', type=str, default=None,
                     help='file to write the logs in')
 parser.add_argument('--log-dir', type=str, default='.',
                     help='file to write the logs in')
+parser.add_argument('--num-datacenters', type=int, default=2,
+                    help='number of datacenters the training is running in')
 args = parser.parse_args()
 
 # download data if necessary
@@ -65,7 +67,7 @@ def get_iterator(args, kv, data_shape=(3, 28, 28)):
         batch_size  = args.batch_size,
         rand_crop   = True,
         rand_mirror = True,
-        num_parts   = kv.num_workers,
+        num_parts   = kv.num_workers * args.num_datacenters,
         part_index  = kv.rank)
 
     val = mx.io.ImageRecordIter(
