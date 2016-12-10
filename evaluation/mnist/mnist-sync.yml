@@ -23,21 +23,25 @@ windows:
             - ssh vm-28-2
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
             - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
             - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
         - node2:
             - ssh vm-28-3
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
             - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
             - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
         - node3:
             - ssh vm-28-4
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
             - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
             - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
         - node4:
             - ssh vm-28-5
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
             - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
             - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
   - logs:
       - ssh vm-28-1
