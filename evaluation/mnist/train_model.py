@@ -3,8 +3,6 @@ import mxnet as mx
 import logging
 import os
 import numpy
-from sklearn.metrics import roc_auc_score, auc, precision_recall_curve, roc_curve, average_precision_score
-from sklearn.preprocessing import OneHotEncoder
 
 def fit(args, network, data_loader, batch_end_callback=None):
     # kvstore
