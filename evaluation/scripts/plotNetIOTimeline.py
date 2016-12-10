@@ -9,7 +9,7 @@ if len(sys.argv) == 1:
     print("enter directory")
     sys.exit(1)
 
-vms = ["node1", "node2", "node3", "node4", "node5"]
+vms = ["vm-28-1", "vm-28-2", "vm-28-3", "vm-28-4", "vm-28-5"]
 interfaces = ["eth0"]
 base_path = sys.argv[1]
 for vm in vms:
@@ -41,24 +41,24 @@ for vm in vms:
                 lw = cw
                 totaltime += 1
     print("{}: total reads: {}, total writes {} (MB), time {}".format(vm,
-        ((lr - initreads) * 512) / (1024 * 1024),
-        ((lw - initwrites) * 512) / (1024 * 1024)), totaltime)
+        (lr - initreads) / (1024 * 1024),
+        (lw - initwrites) / (1024 * 1024), totaltime))
 
 
-        rlist = BytesReceived
-        wlist = BytesTransmitted
+    rlist = BytesReceived
+    wlist = BytesTransmitted
 
-        rlist = [(x) / (1024 * 1024) for x in rlist]
-        wlist = [(x) / (1024 * 1024) for x in wlist]
+    rlist = [(x) / (1024 * 1024) for x in rlist]
+    wlist = [(x) / (1024 * 1024) for x in wlist]
 
-        x1 = np.arange(len(wlist))
-        fig1 = plt.figure()
-        ax1 = fig1.add_subplot(1, 1, 1)
-        ax1.set_title("%s - Network I/O vs Time" % vm)
-        ax1.set_xlabel("Time (s)")
-        ax1.set_ylabel("Network I/O (MB/s)")
+    x1 = np.arange(len(wlist))
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    ax1.set_title("%s - Network I/O vs Time" % vm)
+    ax1.set_xlabel("Time (s)")
+    ax1.set_ylabel("Network I/O (MB/s)")
 
-        rects1 = ax1.plot(x1,rlist)
-        rects2 = ax1.plot(x1,wlist)
-        ax1.legend((rects1[0], rects2[0]), ('Receive', 'Transmit'), shadow=True, loc='upper right')
+    rects1 = ax1.plot(x1,rlist)
+    rects2 = ax1.plot(x1,wlist)
+    ax1.legend((rects1[0], rects2[0]), ('Receive', 'Transmit'), shadow=True, loc='upper right')
 plt.show()

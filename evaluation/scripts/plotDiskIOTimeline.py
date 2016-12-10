@@ -9,8 +9,8 @@ if len(sys.argv) == 1:
     print("enter directory")
     sys.exit(1)
 
-vms = ["node1", "node2", "node3", "node4", "node5"]
-disks = ["sdb1"]
+vms = ["vm-28-1", "vm-28-2", "vm-28-3", "vm-28-4", "vm-28-5"]
+disks = ["vda1"]
 base_path = sys.argv[1]
 
 for vm in vms:
@@ -44,7 +44,7 @@ for vm in vms:
 
     print("{}: total reads: {}, total writes {} (MB), time {}".format(vm,
         ((lr - initreads) * 512) / (1024 * 1024),
-        ((lw - initwrites) * 512) / (1024 * 1024)), totaltime)
+        ((lw - initwrites) * 512) / (1024 * 1024), totaltime))
 
     rlist = ReadDiskActivity
     wlist = WriteDiskActivity

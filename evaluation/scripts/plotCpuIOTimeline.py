@@ -9,7 +9,7 @@ if len(sys.argv) == 1:
     print("enter directory")
     sys.exit(1)
 
-vms = ["node1", "node2", "node3", "node4", "node5"]
+vms = ["vm-28-1", "vm-28-2", "vm-28-3", "vm-28-4", "vm-28-5"]
 cpus = ["cpu"]
 base_path = sys.argv[1]
 for vm in vms:
