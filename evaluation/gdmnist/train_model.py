@@ -190,17 +190,14 @@ def fit(args, network, data_loader, batch_end_callback=None):
         optimizer          = 'gdSGD',
         **model_args)
 
-    eval_metrics = ['accuracy']
-    # TopKAccuracy only allows top_k > 1
-    for top_k in [5, 10, 20]:
-        eval_metrics.append(mx.metric.create('top_k_accuracy', top_k = top_k))
+    eval_metrics = ['accuracy', 'ce']
 
     if batch_end_callback is not None:
         if not isinstance(batch_end_callback, list):
             batch_end_callback = [batch_end_callback]
     else:
         batch_end_callback = []
-    batch_end_callback.append(mx.callback.Speedometer(args.batch_size, 50))
+    batch_end_callback.append(mx.callback.Speedometer(args.batch_size, 1))
 
     model.fit(
         X                  = train,
