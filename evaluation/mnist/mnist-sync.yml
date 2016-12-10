@@ -1,0 +1,84 @@
+# ~/.tmuxinator/mnist.yml
+
+name: mnist
+root: ~/
+
+# Optional tmux socket
+# socket_name: foo
+
+# Runs before everything. Use it to start daemons etc.
+# pre: sudo /etc/rc.d/mysqld start
+
+# Runs in each window and pane before window/pane specific commands. Useful for setting up interpreter versions.
+# pre_window: rbenv shell 2.0.0-p247
+
+# Pass command line options to tmux. Useful for specifying a different tmux.conf.
+# tmux_options: -f ~/.tmux.mac.conf
+
+# Change the command to call tmux.  This can be used by derivatives/wrappers like byobu.
+# tmux_command: byobu
+
+# Specifies (by name or index) which window will be selected on project startup. If not set, the first window is used.
+# startup_window: editor
+
+# Specitifes (by index) which pane of the specified window will be selected on project startup. If not set, the first pane is used.
+# startup_pane: 1
+
+# Controls whether the tmux session should be attached to automatically. Defaults to true.
+# attach: false
+
+# Runs after everything. Use it to attach to tmux with custom options etc.
+# post: tmux -CC attach -t mnist
+
+windows:
+  - ps:
+      layout: main-vertical
+      # Synchronize all panes of this window, can be enabled before or after the pane commands run.
+      # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
+      # synchronize: after
+      panes:
+        - server:
+            - ssh vm-28-1
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/server.sh
+            - python -c "import mxnet"
+        - sched:
+            - ssh vm-28-1
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/sched.sh
+            - python -c "import mxnet"
+  - workers:
+      panes:
+        - node1:
+            - ssh vm-28-2
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+        - node2:
+            - ssh vm-28-3
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+        - node3:
+            - ssh vm-28-4
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+        - node4:
+            - ssh vm-28-5
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+  - logs:
+      - ssh vm-28-1
+      - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist/scripts
+      - source run.sh
+      - start_sslogs
+      - while [ ! -z "`ps aux | grep -v grep | grep mxnet | head -1`" ]; do sleep 1; echo "waiting for `pgrep python`"; done
+      - stop_sslogs
+      - mkdir -p sync_logs_run
+      - mv /home/ubuntu/smihir/dc1/gdml/evaluation/mnist/scripts/sslogs sync_logs_run/sslogs
+      - scp vm-28-2:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
+      - scp vm-28-3:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
+      - scp vm-28-4:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
+      - scp vm-28-5:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
