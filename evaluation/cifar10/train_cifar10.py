@@ -31,6 +31,10 @@ parser.add_argument('--load-epoch', type=int,
                     help="load the model on an epoch using the model-prefix")
 parser.add_argument('--kv-store', type=str, default='local',
                     help='the kvstore type')
+parser.add_argument('--log-file', type=str, default=None,
+                    help='file to write the logs in')
+parser.add_argument('--log-dir', type=str, default='.',
+                    help='file to write the logs in')
 args = parser.parse_args()
 
 # download data if necessary
