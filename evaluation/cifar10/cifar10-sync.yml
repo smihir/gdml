@@ -9,6 +9,7 @@ windows:
       panes:
         - server:
             - ssh vm-28-1
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/cifar10
             - source setup/server.sh
             - python -c "import mxnet"
@@ -21,24 +22,28 @@ windows:
       panes:
         - node1:
             - ssh vm-28-2
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/cifar10
             - source setup/client.sh
             - rm -rf cifar10_sync_$HOSTNAME.log
             - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
         - node2:
             - ssh vm-28-3
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/cifar10
             - source setup/client.sh
             - rm -rf cifar10_sync_$HOSTNAME.log
             - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
         - node3:
             - ssh vm-28-4
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/cifar10
             - source setup/client.sh
             - rm -rf cifar10_sync_$HOSTNAME.log
             - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
         - node4:
             - ssh vm-28-5
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
             - cd /home/ubuntu/smihir/dc1/gdml/evaluation/cifar10
             - source setup/client.sh
             - rm -rf cifar10_sync_$HOSTNAME.log
