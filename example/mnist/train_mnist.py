@@ -88,8 +88,10 @@ def get_iterator(data_shape):
             batch_size  = args.batch_size,
             shuffle     = True,
             flat        = flat,
-            num_parts   = kv.num_workers,
-            part_index  = kv.rank)
+            #num_parts   = kv.num_workers,
+            #part_index  = kv.rank)
+            num_parts   = 2,
+            part_index  = 0)
 
         val = mx.io.MNISTIter(
             image       = data_dir + "t10k-images-idx3-ubyte",
