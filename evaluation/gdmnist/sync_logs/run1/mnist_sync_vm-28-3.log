@@ -1,0 +1,25 @@
+2016-12-10 08:30:37,926 Node[0] start with arguments Namespace(batch_size=128, data_dir='mnist/', gpus=None, kv_store='dist_sync', load_epoch=None, log_dir='.', log_file='mnist_sync_vm-28-3.log', lr=0.1, lr_factor=1, lr_factor_epoch=1, model_prefix=None, network='lenet', num_datacenters=2, num_epochs=1, num_examples=60000, save_model_prefix='mnist_sync_vm-28-3')
+2016-12-10 08:30:38,505 Node[0] Start training with [cpu(0)]
+2016-12-10 08:31:12,435 Node[0] Epoch[0] Batch [50]	Speed: 191.95 samples/sec	Train-accuracy=0.800156
+2016-12-10 08:31:12,436 Node[0] Epoch[0] Batch [50]	Speed: 191.95 samples/sec	Train-top_k_accuracy_5=0.955156
+2016-12-10 08:31:12,436 Node[0] Epoch[0] Batch [50]	Speed: 191.95 samples/sec	Train-top_k_accuracy_10=1.000000
+2016-12-10 08:31:12,436 Node[0] Epoch[0] Batch [50]	Speed: 191.95 samples/sec	Train-top_k_accuracy_20=1.000000
+2016-12-10 08:31:47,116 Node[0] Epoch[0] Batch [100]	Speed: 184.54 samples/sec	Train-accuracy=0.955469
+2016-12-10 08:31:47,117 Node[0] Epoch[0] Batch [100]	Speed: 184.54 samples/sec	Train-top_k_accuracy_5=0.998906
+2016-12-10 08:31:47,117 Node[0] Epoch[0] Batch [100]	Speed: 184.54 samples/sec	Train-top_k_accuracy_10=1.000000
+2016-12-10 08:31:47,117 Node[0] Epoch[0] Batch [100]	Speed: 184.54 samples/sec	Train-top_k_accuracy_20=1.000000
+2016-12-10 08:31:58,787 Node[0] Epoch[0] Resetting Data Iterator
+2016-12-10 08:32:21,213 Node[0] Epoch[0] Batch [150]	Speed: 187.71 samples/sec	Train-accuracy=0.971094
+2016-12-10 08:32:21,214 Node[0] Epoch[0] Batch [150]	Speed: 187.71 samples/sec	Train-top_k_accuracy_5=0.999531
+2016-12-10 08:32:21,214 Node[0] Epoch[0] Batch [150]	Speed: 187.71 samples/sec	Train-top_k_accuracy_10=1.000000
+2016-12-10 08:32:21,214 Node[0] Epoch[0] Batch [150]	Speed: 187.71 samples/sec	Train-top_k_accuracy_20=1.000000
+2016-12-10 08:32:55,578 Node[0] Epoch[0] Batch [200]	Speed: 186.24 samples/sec	Train-accuracy=0.983281
+2016-12-10 08:32:55,579 Node[0] Epoch[0] Batch [200]	Speed: 186.24 samples/sec	Train-top_k_accuracy_5=0.999844
+2016-12-10 08:32:55,579 Node[0] Epoch[0] Batch [200]	Speed: 186.24 samples/sec	Train-top_k_accuracy_10=1.000000
+2016-12-10 08:32:55,579 Node[0] Epoch[0] Batch [200]	Speed: 186.24 samples/sec	Train-top_k_accuracy_20=1.000000
+2016-12-10 08:33:18,786 Node[0] Epoch[0] Time cost=160.151
+2016-12-10 08:33:19,021 Node[0] Saved checkpoint to "mnist_sync_vm-28-3-0001.params"
+2016-12-10 08:33:25,544 Node[0] Epoch[0] Validation-accuracy=0.973157
+2016-12-10 08:33:25,544 Node[0] Epoch[0] Validation-top_k_accuracy_5=1.000000
+2016-12-10 08:33:25,544 Node[0] Epoch[0] Validation-top_k_accuracy_10=1.000000
+2016-12-10 08:33:25,544 Node[0] Epoch[0] Validation-top_k_accuracy_20=1.000000
