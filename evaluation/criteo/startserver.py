@@ -7,11 +7,14 @@ import tensorflow as tf
 tf.app.flags.DEFINE_integer("task_index", 0, "Index of task with in the job.")
 FLAGS = tf.app.flags.FLAGS
 
+TEST_FLAG="TESTING"
+
 #
 tf.logging.set_verbosity(tf.logging.DEBUG)
 
 clusterSpec = tf.train.ClusterSpec({
     "worker" : [
+        # "node0:2222"
         "node0:2222",
         "node1:2222",
         "node2:2222",

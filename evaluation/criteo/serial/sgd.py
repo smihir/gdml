@@ -23,14 +23,14 @@ batch_size = 200 # Number of examples read at once and calc gradient at once
 batch_size_test = 1000 # Number of examples read at once
 batch_size_validation = 10000 # Number of examples read at once
 
-# DATA PARAMETERS
-# filenames = ["/home/ubuntu/nfs/cs838_assignment3/data/toyData.csv"]
-# validation_filenames = ["/home/ubuntu/nfs/cs838_assignment3/data/toyValidation.csv"]
+
+# DATA_DIR="/home/ubuntu/workspace/criteo_data/"
+DATA_DIR = "/home/ubuntu/nfs/criteo_data/criteo-tfr/"
 
 # Files to read
-filenames = ["/home/ubuntu/criteo_data/tfrecords00"]
-filenames_test = ["/home/ubuntu/criteo_data/tfrecords22-tiny"] # subset of validation dataset
-filenames_validation = ["/home/ubuntu/criteo_data/tfrecords22"]
+filenames = [DATA_DIR + "tfrecords00"]
+filenames_test = [DATA_DIR + "tfrecords22-tiny"] # subset of validation dataset
+filenames_validation = [DATA_DIR + "tfrecords22"]
 
 # filenames = ["../data/tfrecords_train"]
 # filenames_test = ["../data/tfrecords22-tiny"] # subset of validation dataset
@@ -76,8 +76,8 @@ with g.as_default():
     # SETUP INPUT TENSORS
     # Get Input batch tensors operators for training and testing data
     (t_label_batch, t_sp_index_batch, t_sp_features_batch) = input_sp_tfrecord_criteo_pipeline(filenames, batch_size, num_features, num_epochs=None) 
-    (t_label_batch_test, t_sp_index_batch_test, t_sp_features_batch_test) = input_sp_tfrecord_criteo_pipeline(filenames, batch_size_test, num_features, num_epochs=None) 
-    (t_label_batch_validation, t_sp_index_batch_validation, t_sp_features_batch_validation) = input_sp_tfrecord_criteo_pipeline(filenames, batch_size_validation, num_features, num_epochs=None) 
+    (t_label_batch_test, t_sp_index_batch_test, t_sp_features_batch_test) = input_sp_tfrecord_criteo_pipeline(filenames_test, batch_size_test, num_features, num_epochs=None) 
+    (t_label_batch_validation, t_sp_index_batch_validation, t_sp_features_batch_validation) = input_sp_tfrecord_criteo_pipeline(filenames_validation, batch_size_validation, num_features, num_epochs=None) 
 
     # SETUP TRAINING TENSORS
     t_sp_grad_local = getGradientTensor(w, t_label_batch, t_sp_index_batch, t_sp_features_batch, learning_rate, batch_size, num_features)
