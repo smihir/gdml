@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ -z "$1" ]] ; then
-    DISK="vda1"
+    DISK="sdb1"
     echo 'using default disk:' $DISK
 fi
 
