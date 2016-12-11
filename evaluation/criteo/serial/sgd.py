@@ -28,9 +28,10 @@ batch_size_validation = 10000 # Number of examples read at once
 # validation_filenames = ["/home/ubuntu/nfs/cs838_assignment3/data/toyValidation.csv"]
 
 # Files to read
-filenames = ["/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords_train"]
-filenames_test = ["/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords22-tiny"] # subset of validation dataset
-filenames_validation = ["/home/ubuntu/nfs/criteo_data/criteo-tfr/tfrecords22"]
+filenames = ["/home/ubuntu/criteo_data/tfrecords00"]
+filenames_test = ["/home/ubuntu/criteo_data/tfrecords22-tiny"] # subset of validation dataset
+filenames_validation = ["/home/ubuntu/criteo_data/tfrecords22"]
+
 # filenames = ["../data/tfrecords_train"]
 # filenames_test = ["../data/tfrecords22-tiny"] # subset of validation dataset
 # filenames_validation = ["../data/tfrecords22"]
