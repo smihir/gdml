@@ -4,6 +4,7 @@ mxnet/bin
 
 # criteo data
 example/criteo/data
+evaluation/criteo/data
 
 core
 sftp-config.json
