@@ -1,0 +1,58 @@
+# ~/.tmuxinator/mnist-sync.yml
+
+name: mnist-sync
+root: ~/
+
+windows:
+  - ps:
+      layout: main-vertical
+      panes:
+        - server:
+            - ssh vm-28-1
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/server.sh
+            - python -c "import mxnet"
+        - sched:
+            - ssh vm-28-1
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/sched.sh
+            - python -c "import mxnet"
+  - workers:
+      panes:
+        - node1:
+            - ssh vm-28-2
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+        - node2:
+            - ssh vm-28-3
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+        - node3:
+            - ssh vm-28-4
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+        - node4:
+            - ssh vm-28-5
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist
+            - source setup/client.sh
+            - rm -rf mnist_sync_$HOSTNAME.log
+            - python train_mnist.py --network lenet --kv-store dist_sync --num-epochs 1 --log-file mnist_sync_$HOSTNAME.log --save-model-prefix mnist_sync_$HOSTNAME
+  - logs:
+      - ssh vm-28-1
+      - cd /home/ubuntu/smihir/dc1/gdml/evaluation/mnist/scripts
+      - source run.sh
+      - start_sslogs
+      - while [ ! -z "`ps aux | grep -v grep | grep mxnet | head -1`" ]; do sleep 1; echo "waiting for `pgrep python`"; done
+      - stop_sslogs
+      - mkdir -p sync_logs_run
+      - mv /home/ubuntu/smihir/dc1/gdml/evaluation/mnist/scripts/sslogs sync_logs_run/sslogs
+      - scp vm-28-2:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
+      - scp vm-28-3:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
+      - scp vm-28-4:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run
+      - scp vm-28-5:/home/ubuntu/smihir/dc1/gdml/evaluation/mnist/mnist_sync_vm* sync_logs_run

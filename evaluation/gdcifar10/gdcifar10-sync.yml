@@ -1,0 +1,100 @@
+# ~/.tmuxinator/gdcifar10-sync.yml
+
+name: gdcifar10-sync
+root: ~/
+
+windows:
+  - root_ps:
+      layout: main-vertical
+      panes:
+        - server:
+            - ssh vm-28-1
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/root_server.sh
+            - python -c "import mxnet"
+        - sched:
+            - ssh vm-28-1
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/root_sched.sh
+            - python -c "import mxnet"
+  - root_workers:
+      panes:
+        - worker_node2:
+            - ssh vm-28-2
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/root_client.sh
+            - python zmq_worker.py
+        - worker_node4:
+            - ssh vm-28-4
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/root_client.sh
+            - python zmq_worker.py
+  - slave_ps:
+      panes:
+        - sched_dc1:
+            - ssh vm-28-2
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/sched_dc1.sh
+            - python -c "import mxnet"
+        - ps_dc1:
+            - ssh vm-28-2
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/server_dc1.sh
+            - python -c "import mxnet"
+            - pkill -9 python
+            - ssh vm-28-1 pkill -9 python
+        - sched_dc2:
+            - ssh vm-28-4
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/sched_dc2.sh
+            - python -c "import mxnet"
+        - ps_dc2:
+            - ssh vm-28-4
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/server_dc2.sh
+            - python -c "import mxnet"
+            - pkill -9 python
+  - workers:
+      panes:
+        - worker1_dc1:
+            - ssh vm-28-2
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/client_dc1.sh
+            - rm -rf cifar10_sync_$HOSTNAME.log
+            - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
+        - worker2_dc1:
+            - ssh vm-28-3
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/client_dc1.sh
+            - rm -rf cifar10_sync_$HOSTNAME.log
+            - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
+        - worker1_dc2:
+            - ssh vm-28-4
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/client_dc2.sh
+            - rm -rf cifar10_sync_$HOSTNAME.log
+            - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
+        - worker2_dc2:
+            - ssh vm-28-5
+            - sudo sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+            - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10
+            - source setup/client_dc2.sh
+            - rm -rf cifar10_sync_$HOSTNAME.log
+            - python train_cifar10.py --kv-store dist_sync --num-epochs 1 --log-file cifar10_sync_$HOSTNAME.log --save-model-prefix cifar10_sync_$HOSTNAME
+  - logs:
+      - ssh vm-28-1
+      - cd /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10/scripts
+      - source run.sh
+      - start_sslogs
+      - while [ ! -z "`pgrep python`" ]; do sleep 1; echo "waiting for `pgrep python`"; done
+      - stop_sslogs
+      - mkdir -p sync_logs_run
+      - mv /home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10/scripts/sslogs sync_logs_run/sslogs
+      - scp vm-28-2:/home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10/cifar10_sync_vm* sync_logs_run
+      - scp vm-28-3:/home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10/cifar10_sync_vm* sync_logs_run
+      - scp vm-28-4:/home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10/cifar10_sync_vm* sync_logs_run
+      - scp vm-28-5:/home/ubuntu/smihir/dc1/gdml/evaluation/gdcifar10/cifar10_sync_vm* sync_logs_run

@@ -57,3 +57,4 @@ mxnet/example
 example/mnist/mnist
 example/gdmnist/mnist
 evaluation/mnist/mnist
+evaluation/cifar10/cifar10
