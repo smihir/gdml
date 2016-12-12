@@ -22,15 +22,16 @@ function start_cluster() {
     else
         echo "Create $TF_RUN_DIR on remote hosts if they do not exist."
         pdsh -R ssh -w node[0-4] "mkdir -p $TF_RUN_DIR"
+        echo "Create output dir in work dir."
         echo "Copying the script to all the remote hosts."
         pdcp -R ssh -w node[0-4] $1 $TF_RUN_DIR
 
         echo "Starting tensorflow servers on all hosts based on the spec in $1"
         echo "The server output is logged to serverlog-i.out, where i = 1, ..., 5 are the VM numbers."
-        nohup ssh ubuntu@node0 "cd /home/ubuntu/run ; python startserver.py --task_index=0" > serverlog-0.out 2>&1&
-        nohup ssh ubuntu@node1 "cd /home/ubuntu/run ; python startserver.py --task_index=1" > serverlog-1.out 2>&1&
-        nohup ssh ubuntu@node2 "cd /home/ubuntu/run ; python startserver.py --task_index=2" > serverlog-2.out 2>&1&
-        nohup ssh ubuntu@node3 "cd /home/ubuntu/run ; python startserver.py --task_index=3" > serverlog-3.out 2>&1&
-        nohup ssh ubuntu@node4 "cd /home/ubuntu/run ; python startserver.py --task_index=4" > serverlog-4.out 2>&1&
+        nohup ssh ubuntu@node0 "cd /home/ubuntu/run ; python startserver.py --task_index=0" > output/serverlog-0.out 2>&1&
+        nohup ssh ubuntu@node1 "cd /home/ubuntu/run ; python startserver.py --task_index=1" > output/serverlog-1.out 2>&1&
+        nohup ssh ubuntu@node2 "cd /home/ubuntu/run ; python startserver.py --task_index=2" > output/serverlog-2.out 2>&1&
+        nohup ssh ubuntu@node3 "cd /home/ubuntu/run ; python startserver.py --task_index=3" > output/serverlog-3.out 2>&1&
+        nohup ssh ubuntu@node4 "cd /home/ubuntu/run ; python startserver.py --task_index=4" > output/serverlog-4.out 2>&1&
     fi
 }

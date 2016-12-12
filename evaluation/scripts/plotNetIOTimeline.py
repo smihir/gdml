@@ -9,7 +9,14 @@ if len(sys.argv) == 1:
     print("enter directory")
     sys.exit(1)
 
-vms = ["vm-28-1", "vm-28-2", "vm-28-3", "vm-28-4", "vm-28-5"]
+vms = None
+if len(sys.argv) >= 3:
+    if sys.argv[2] == 'gcloud':
+        vms = ["node0", "node1", "node2", "node3", "node4"]
+
+if not vms:
+    vms = ["vm-28-1", "vm-28-2", "vm-28-3", "vm-28-4", "vm-28-5"]
+
 interfaces = ["eth0"]
 base_path = sys.argv[1]
 for vm in vms:

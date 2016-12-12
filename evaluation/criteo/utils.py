@@ -20,8 +20,8 @@ def getValidationTensor(w, t_example_batch, t_index_batch, batch_size ):
     t_f_active = tf.sparse_to_dense(t_index_batch.indices, t_index_batch.shape, t_example_batch.values,  default_value=0, validate_indices=True, name="f_active")
     t_predictions = tf.diag_part(tf.matmul(t_w_active,t_f_active,transpose_b=True))
     t_predictions = tf.reshape(t_predictions,shape=[batch_size,1])
-
-    return t_predictions
+    t_predictions_p = tf.sigmoid(t_predictions)
+    return (t_predictions, t_predictions_p)
 
 
 def getGradientTensor(w, t_label_batch, t_index_batch,t_features_batch, learning_rate, batch_size, num_features ):
