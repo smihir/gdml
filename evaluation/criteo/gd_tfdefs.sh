@@ -11,8 +11,10 @@ function terminate_cluster() {
 }
 
 function install_tensorflow() {
-    pdsh -R ssh -w node[0-4] "sudo apt-get install --assume-yes python-pip python-dev"
-    pdsh -R ssh -w node[0-4] "sudo pip install --upgrade $TF_BINARY_URL"
+    pdsh -R ssh -w node[5-14] "sudo apt-get update"
+    pdsh -R ssh -w node[5-14] "sudo apt-get install --assume-yes python-pip python-dev"
+    pdsh -R ssh -w node[5-14] "sudo apt-get install python-numpy python-scipy python-sympy python-nose python-sklearn"
+    pdsh -R ssh -w node[5-14] "sudo pip install --upgrade $TF_BINARY_URL"
 }
 
 function start_cluster() {
@@ -22,7 +24,6 @@ function start_cluster() {
     else
         echo "Create $TF_RUN_DIR on remote hosts if they do not exist."
         pdsh -R ssh -w node[0-4] "mkdir -p $TF_RUN_DIR"
-        echo "Create output dir in work dir."
         echo "Copying the script to all the remote hosts."
         pdcp -R ssh -w node[0-4] $1 $TF_RUN_DIR
 
