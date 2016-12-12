@@ -10,6 +10,7 @@ import numpy as np
 import gc
 import os
 import sys
+from sklearn.metrics import roc_auc_score, auc, precision_recall_curve, roc_curve, average_precision_score
 
 sys.path.append("../") # Append for io_utils
 from io_utils import *
@@ -38,10 +39,11 @@ filenames_validation = [DATA_DIR + "tfrecords22"]
 num_features = 33762578 # Total number of features after one hot encoding
 
 # I/O PARAMETERES
-num_examples = 500000
+num_examples = 2000000
 num_examples_test = 10000
 num_examples_validation = 2000000
 num_batches = num_examples / batch_size # Number of training batches
+# num_batches = 1 # Number of training batches
 num_batches_test = num_examples_test / batch_size_test # Number of test batches
 num_batches_validation = num_examples_validation / batch_size_validation # Number of validation bataches
 
@@ -60,8 +62,6 @@ with g.as_default():
     gradient_norm = []
     test_accuracy = []
     test_error = []
-    test_precision = []
-    test_recall = []
     validation_accuracy = 0
     validation_error = 0  
     validation_precision = 0  
@@ -87,9 +87,9 @@ with g.as_default():
     t_w_update = tf.scatter_sub(w, tf.squeeze(t_sp_grad_local.indices), tf.expand_dims(t_sp_grad_local.values, 1))
 
     # SETUP TESTING TENSORS: Every 10000 steps and with small dataset --> Takes ~10 seconds
-    t_predictions_test = getValidationTensor(w, t_sp_features_batch_test, t_sp_index_batch_test, batch_size_test)
+    (t_predictions_test,t_predictions_test_p) = getValidationTensor(w, t_sp_features_batch_test, t_sp_index_batch_test, batch_size_test)
     # SETUP Validation TENSORS: Every 100000 and with full validation dataset --> Takes ~5 mins
-    t_predictions_validation = getValidationTensor(w, t_sp_features_batch_validation, t_sp_index_batch_validation, batch_size_validation)
+    (t_predictions_validation,t_predictions_validation_p) = getValidationTensor(w, t_sp_features_batch_validation, t_sp_index_batch_validation, batch_size_validation)
 
 
     t_saver = tf.train.Saver({"model": w})
@@ -129,13 +129,9 @@ with g.as_default():
 
             accuracy = float(float(num_tp_all + num_tn_all) / float(num_examples_test))
             error = float(float(num_fp_all + num_fn_all) / float(num_examples_test))
-            precision = float(float(num_tp_all) / float(num_tp_all + num_fp_all))
-            recall = float(float(num_tp_all) / float(num_tp_all + num_fn_all))
             test_accuracy.append(accuracy)
             test_error.append(error)
-            test_precision.append(precision)
-            test_recall.append(recall)
-            print "Batch {}, Accuracy: {}, Test Error: {}, Precision: {}, Recall: {}".format(i,accuracy,error,precision,recall)
+            print "Batch {}, Accuracy: {}, Error: {}".format(i,accuracy,error)
             print "tp: {}, tn: {}, fp: {}, fn: {}".format(num_tp_all,num_tn_all,num_fp_all,num_fn_all)
 
     # Run Validation
@@ -147,15 +143,27 @@ with g.as_default():
     num_tn_all = 0
     num_fp_all = 0
     num_fn_all = 0
+    labels_all = np.zeros((num_examples_validation,1))
+    predictions_all = np.zeros((num_examples_validation,1))
     for j in range(0,num_batches_validation):
         print "Validation Batch {0}, Val Ex Processed {1}".format(j,j*batch_size_validation)
-        (labels, predictions) = sess.run([t_label_batch_validation, t_predictions_validation])
+        (labels, predictions,predictions_p) = sess.run([t_label_batch_validation, t_predictions_validation,t_predictions_validation_p])
+        print predictions_p
+        start_index = j * batch_size_validation
+        end_index = ((j+1) * batch_size_validation)
+        print start_index
+        print end_index
+        labels_all[start_index:end_index] = labels
+        predictions_all[start_index:end_index] = predictions_p
         (num_tp,num_tn,num_fp,num_fn) = getPrecisionAndRecall(labels, predictions)
         num_tp_all += num_tp
         num_tn_all += num_tn
         num_fp_all += num_fp
-        num_fn_all += num_fn
+        num_fn_all += num_fn    
 
+    e_precision, e_recall, _ = precision_recall_curve( labels_all, predictions_all, pos_label=1 )
+    e_fpr, e_tpr, _ = roc_curve( labels_all, predictions_all, pos_label=1 )
+    
     accuracy = float(float(num_tp_all + num_tn_all) / float(num_examples_validation))
     error = float(float(num_fp_all + num_fn_all) / float(num_examples_validation))
     precision = float(float(num_tp_all) / float(num_tp_all + num_fp_all))
@@ -172,12 +180,14 @@ with g.as_default():
         gradient_norm=gradient_norm,
         test_error=test_error,
         test_accuracy=test_accuracy,
-        test_precision=test_precision,
-        test_recall=test_recall,
         validation_error=validation_error,
         validation_accuracy=validation_accuracy,
         validation_precision=validation_precision,
-        validation_recall=validation_recall
+        validation_recall=validation_recall,
+        e_precision=e_precision,
+        e_recall=e_recall,
+        e_fpr=e_fpr,
+        e_tpr=e_tpr
         )
 
 
