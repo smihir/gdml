@@ -49,7 +49,6 @@ with g.as_default():
 
     tf.logging.set_verbosity(tf.logging.INFO)
     # creating a model variable on task 0. This is a process running on node vm-48-1
-    counters = tf.Variable(tf.zeros([num_workers-1, ]), name="status_counter")
 
     with tf.device("/job:worker/task:0"):
         # Measurement metrics
@@ -64,6 +63,8 @@ with g.as_default():
         # SETUP VARIABLES
         w = tf.Variable(tf.random_normal([num_features, 1], stddev=0.35), name="model")
         curr_norm = tf.Variable(0., name="curr_norm")
+        counter_global = tf.Variable(0., name="counter_global")
+
         num_correct_predictions = 0.        
         assign_op = None
         # Create Validation Files Tensors - Only done in master
@@ -77,6 +78,7 @@ with g.as_default():
     # operators as done in "exampleReadCriteoData.py"
     # gradients = []
     # norms = []
+    counters = [0] * (num_workers - 1)
     for i in range(1, num_workers):
         with tf.device("/job:worker/task:%d" % i):
             fnames = []
@@ -86,6 +88,7 @@ with g.as_default():
                 fnames.append(DATA_DIR + "tfrecords%02d" % findex)
             
             gradient_norm = []
+            counter_local = tf.Variable(0., name="counter_local")
 
             print('node[{}]: process files: {}'.format(i, fnames))
 
@@ -97,6 +100,7 @@ with g.as_default():
             t_norm_local = getNormTensor(t_sp_grad_local)
     
             # gradients.append(t_sp_grad_local)
+            counter[i-1] = tf.assign_add(counter_local, batch_size)
             # norms.append(t_norm_local)
 
     # we create an operator to aggregate the local gradients
@@ -109,6 +113,8 @@ with g.as_default():
         # g = tf.sparse_add(g1, g2)
         t_w_update = tf.scatter_sub(w, tf.squeeze(t_sp_grad_local.indices), tf.expand_dims(t_sp_grad_local.values, 1))
         # t_norm_update = tf.assign(curr_norm, tf.add_n(norms)/float(num_workers))
+
+        t_sync_counter = tf.assign(counter_global,tf.add_n(counters))
         
 
     # validation operator
@@ -121,7 +127,6 @@ with g.as_default():
         t_saver = tf.train.Saver({"model": w})
 
 
-    with tf.Session("grpc://vm-48-%d:2222" % (FLAGS.task_index+1)) as sess:
     # START SESSION
     config = tf.ConfigProto(log_device_placement=True)
     with tf.Session("grpc://node%d:2222" % (FLAGS.task_index), config=config) as sess:
@@ -130,15 +135,14 @@ with g.as_default():
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
         if(FLAGS.task_index == 0):
-            # Do something until we are done
-        else:
-            for i in range(0, num_batches):
-                # (norm_update, w_update) = sess.run([t_norm_update,t_w_update])
-                (norm_local, w_update) = sess.run([t_norm_local,t_w_update])
-                num_examples_processed = (i*batch_size)
-                # batch_log = "Batch {0}, Examples Processed Per Worker: {1} ".format(i,num_examples_processed)
-                # print batch_log
-                gradient_norm.append(norm_local)
+
+        for i in range(0, num_batches):
+            # (norm_update, w_update) = sess.run([t_norm_update,t_w_update])
+            (norm_local, w_update, curr_count) = sess.run([t_norm_local,t_w_update,counters[FLAGS.task_index-1]])
+            num_examples_processed = (i*batch_size)
+            # batch_log = "Batch {0}, Examples Processed Per Worker: {1} ".format(i,num_examples_processed)
+            # print batch_log
+            gradient_norm.append(norm_local)
 
             # Run Testing
             # if(((num_examples_processed) % num_steps_per_test) == 0):

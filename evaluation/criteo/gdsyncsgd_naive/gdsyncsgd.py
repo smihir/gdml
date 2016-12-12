@@ -10,12 +10,12 @@ sys.path.append("../")
 from io_utils import *
 from utils import *
 
-num_workers = 5
+num_workers = 10
 
 # GRADIENT DESCENT PARAMETERS
 learning_rate = 0.1 # eta parameter
 training_epochs = 1 # Number of passes through the whole dataset
-batch_size = 200 # Number of examples read at once and calc gradient at once
+batch_size = 400 # Number of examples read at once and calc gradient at once
 batch_size_test = 1000 # Number of examples read at once
 batch_size_validation = 10000 # Number of examples read at once
 
@@ -29,17 +29,17 @@ filenames_validation = [DATA_DIR + "tfrecords22"]
 num_features = 33762578 # Total number of features after one hot encoding
 
 # I/O PARAMETERES
-num_examples = 500000
+num_examples = 40000
 num_examples_test = 10000
-num_examples_validation = 2000000
+num_examples_validation = 200000
 num_batches = num_examples / batch_size # Number of training batches
 num_batches_test = num_examples_test / batch_size_test # Number of test batches
 num_batches_validation = num_examples_validation / batch_size_validation # Number of validation bataches
 
-num_steps_per_test = 25000
+# num_steps_per_test = 25000
 
 description = str(batch_size) + "_" + str(learning_rate)
-out_filename = "output/SyncSGD_Results_" + description
+out_filename = "output/GDSyncSGDNaive_Results_" + description
 
 g = tf.Graph()
 
@@ -48,7 +48,7 @@ with g.as_default():
 
     tf.logging.set_verbosity(tf.logging.INFO)
     # creating a model variable on task 0. This is a process running on node vm-48-1
-    with tf.device("/job:worker/task:0"):
+    with tf.device("/job:worker/task:10"):
         # Measurement metrics
         gradient_norm = []
         test_accuracy = []
@@ -74,13 +74,10 @@ with g.as_default():
     # operators as done in "exampleReadCriteoData.py"
     gradients = []
     norms = []
-    for i in range(1, num_workers):
+    for i in range(0, num_workers):
         with tf.device("/job:worker/task:%d" % i):
             fnames = []
-            for findex in range(i * num_workers, (i * num_workers) + num_workers):
-                if findex > 21:
-                    break
-                fnames.append(DATA_DIR + "tfrecords%02d" % findex)
+            fnames.append(DATA_DIR + "tfrecords%02d" % i)
 
             print('node[{}]: process files: {}'.format(i, fnames))
 
@@ -95,19 +92,30 @@ with g.as_default():
             norms.append(t_norm_local)
 
     # we create an operator to aggregate the local gradients
-    with tf.device("/job:worker/task:0"):
+    with tf.device("/job:worker/task:10"):
         tf.logging.info('Number of gradients received %d' % len(gradients))
         tf.logging.info('Number of norms received %d' % len(norms))
-        g1 = tf.sparse_add(gradients[0], gradients[1])
-        g2 = tf.sparse_add(gradients[2], gradients[3])
-        # g3 = tf.sparse_add(gradients[4], g2)
-        g = tf.sparse_add(g1, g2)
+        # g = gradients[0]
+        # for i in range(1,num_workers-1):
+            # g = tf.sparse_add(g,gradients[i])
+        g1_1 = tf.sparse_add(gradients[0], gradients[1])
+        g1_2 = tf.sparse_add(gradients[2], gradients[3])
+        g1_3 = tf.sparse_add(gradients[4], g1_2)
+        g1 = tf.sparse_add(g1_1, g1_3)
+        g2_1 = tf.sparse_add(gradients[5], gradients[6])
+        g2_2 = tf.sparse_add(gradients[7], gradients[8])
+        g2_3 = tf.sparse_add(gradients[9], g2_2)
+        g2 = tf.sparse_add(g2_1, g2_3)
+
+        # g12 = tf.sparse_add(g1, g2) 
+        g = tf.sparse_add(g1, g2) 
+
         t_w_update = tf.scatter_sub(w, tf.squeeze(g.indices), tf.expand_dims(g.values, 1))
         t_norm_update = tf.assign(curr_norm, tf.add_n(norms)/float(num_workers))
         
 
     # validation operator
-    with tf.device("/job:worker/task:0"):
+    with tf.device("/job:worker/task:10"):
         # SETUP TESTING TENSORS: Every 10000 steps and with small dataset --> Takes ~10 seconds
         (t_predictions_test,t_predictions_test_p) = getValidationTensor(w, t_sp_features_batch_test, t_sp_index_batch_test, batch_size_test)
         # SETUP Validation TENSORS: Every 100000 and with full validation dataset --> Takes ~5 mins
@@ -118,7 +126,7 @@ with g.as_default():
 
     # START SESSION
     config = tf.ConfigProto(log_device_placement=True)
-    with tf.Session("grpc://node0:2222", config=config) as sess:
+    with tf.Session("grpc://node10:2222", config=config) as sess:
         sess.run(tf.initialize_all_variables())
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
@@ -131,28 +139,28 @@ with g.as_default():
             gradient_norm.append(norm_update)
 
             # Run Testing
-            if(((num_examples_processed) % num_steps_per_test) == 0):
-                print "Testing..."
-                num_tp_all = 0 
-                num_tn_all = 0
-                num_fp_all = 0
-                num_fn_all = 0
-                for j in range(0,num_batches_test):
-                    test_log = "Test Batch {0}, Test Ex Processed {1}".format(j,j*batch_size_test)
-                    print test_log
-                    (labels, predictions) = sess.run([t_label_batch_test, t_predictions_test])
-                    (num_tp,num_tn,num_fp,num_fn) = getPrecisionAndRecall(labels, predictions)
-                    num_tp_all += num_tp
-                    num_tn_all += num_tn
-                    num_fp_all += num_fp
-                    num_fn_all += num_fn
+            # if(((num_examples_processed) % num_steps_per_test) == 0):
+            #     print "Testing..."
+            #     num_tp_all = 0 
+            #     num_tn_all = 0
+            #     num_fp_all = 0
+            #     num_fn_all = 0
+            #     for j in range(0,num_batches_test):
+            #         test_log = "Test Batch {0}, Test Ex Processed {1}".format(j,j*batch_size_test)
+            #         print test_log
+            #         (labels, predictions) = sess.run([t_label_batch_test, t_predictions_test])
+            #         (num_tp,num_tn,num_fp,num_fn) = getPrecisionAndRecall(labels, predictions)
+            #         num_tp_all += num_tp
+            #         num_tn_all += num_tn
+            #         num_fp_all += num_fp
+            #         num_fn_all += num_fn
 
-                accuracy = float(float(num_tp_all + num_tn_all) / float(num_examples_test))
-                error = float(float(num_fp_all + num_fn_all) / float(num_examples_test))
-                test_accuracy.append(accuracy)
-                test_error.append(error)
-                print "Batch {}, Accuracy: {}, Error: {}".format(i,accuracy,error)
-                print "tp: {}, tn: {}, fp: {}, fn: {}".format(num_tp_all,num_tn_all,num_fp_all,num_fn_all)
+            #     accuracy = float(float(num_tp_all + num_tn_all) / float(num_examples_test))
+            #     error = float(float(num_fp_all + num_fn_all) / float(num_examples_test))
+            #     test_accuracy.append(accuracy)
+            #     test_error.append(error)
+            #     print "Batch {}, Accuracy: {}, Error: {}".format(i,accuracy,error)
+            #     print "tp: {}, tn: {}, fp: {}, fn: {}".format(num_tp_all,num_tn_all,num_fp_all,num_fn_all)
 
         # Run Validation
         print "Validating..."
@@ -166,11 +174,8 @@ with g.as_default():
         for j in range(0,num_batches_validation):
             print "Validation Batch {0}, Val Ex Processed {1}".format(j,j*batch_size_validation)
             (labels, predictions,predictions_p) = sess.run([t_label_batch_validation, t_predictions_validation,t_predictions_validation_p])
-            print predictions_p
             start_index = j * batch_size_validation
             end_index = ((j+1) * batch_size_validation)
-            print start_index
-            print end_index
             labels_all[start_index:end_index] = labels
             predictions_all[start_index:end_index] = predictions_p
             (num_tp,num_tn,num_fp,num_fn) = getPrecisionAndRecall(labels, predictions)
