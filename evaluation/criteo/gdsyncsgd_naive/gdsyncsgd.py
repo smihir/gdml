@@ -15,7 +15,7 @@ num_workers = 10
 # GRADIENT DESCENT PARAMETERS
 learning_rate = 0.1 # eta parameter
 training_epochs = 1 # Number of passes through the whole dataset
-batch_size = 400 # Number of examples read at once and calc gradient at once
+batch_size = 200 # Number of examples read at once and calc gradient at once
 batch_size_test = 1000 # Number of examples read at once
 batch_size_validation = 10000 # Number of examples read at once
 

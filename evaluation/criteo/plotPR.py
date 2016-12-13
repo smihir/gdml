@@ -29,14 +29,16 @@ for i in range(0,5):
 		validation_recall = results['validation_recall'].item(0)
 		e_precision = results['e_precision']
 		e_recall = results['e_recall']
+		e_fpr = results['e_fpr']
+		e_tpr = results['e_tpr']
 
-		plt.plot(batches[0:num_batches:100],gradient_norm[0:num_batches:100],label="learning rate = "+str(lr),linewidth=2.0)
+		plt.plot(e_precision,e_recall,label="learning rate = "+str(lr),linewidth=2.0)
 
 
-plt.title("Gradient norm of serial mini-batch sgd", fontsize=14,fontweight='bold')
-plt.xlabel('Num Examples Processed', fontsize=14,fontweight='bold')
-plt.ylabel('Gradient Norm', fontsize=14,fontweight='bold')
-plt.legend(loc='upper right',fontsize=14)
+plt.title("Precision-Recall of serial mini-batch sgd", fontsize=14,fontweight='bold')
+plt.xlabel('Precision', fontsize=14,fontweight='bold')
+plt.ylabel('Recall', fontsize=14,fontweight='bold')
+plt.legend(loc='lower right',fontsize=14)
 plt.show()
 
 
