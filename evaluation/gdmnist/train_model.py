@@ -163,7 +163,7 @@ def fit(args, network, data_loader, batch_end_callback=None):
     epoch_size = args.num_examples / args.batch_size
 
     if args.kv_store == 'dist_sync':
-        epoch_size /= kv.num_workers
+        epoch_size /= (kv.num_workers * args.num_datacenters)
         model_args['epoch_size'] = epoch_size
 
     if 'lr_factor' in args and args.lr_factor < 1:
