@@ -6,6 +6,9 @@ mxnet/bin
 example/criteo/data
 evaluation/criteo/data
 evaluation/criteo/serial/output
+evaluation/criteo/syncsgd/output
+evaluation/criteo/gdsyncsgd_naive/output
+evaluation/criteo/logs
 
 core
 sftp-config.json
