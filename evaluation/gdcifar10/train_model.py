@@ -31,8 +31,10 @@ class gdSGD(mx.optimizer.Optimizer):
     param_idx2name : dict of string/int to float, optional
         special treat weight decay in parameter ends with bias, gamma, and beta
     """
-    def __init__(self, momentum=0.0, **kwargs):
+    def __init__(self, momentum=0.0, guf=1, **kwargs):
         super(gdSGD, self).__init__(**kwargs)
+        self.global_update_frequency = guf
+        self.current_update_count = 0
         self.momentum = momentum
         self.hierarchical = True
         self.sock = None
@@ -73,6 +75,7 @@ class gdSGD(mx.optimizer.Optimizer):
         lr = self._get_lr(index)
         wd = self._get_wd(index)
         self._update_count(index)
+        self.current_update_count += 1
 
         grad = grad * self.rescale_grad
         if self.clip_gradient is not None:
@@ -89,22 +92,23 @@ class gdSGD(mx.optimizer.Optimizer):
 
         # now push the weight to root
         if self.sock is not None:
-            try:
-                logging.info('send')
-                self.sock.send(pickle.dumps((index, weight)))
-                logging.info('send ok')
-                # zmq documentation says this recv is necessary.
-                # I have not tested without this recv.
-                # TODO(smihir): try to see if the recv can be removed.
+            if self.current_update_count % self.global_update_frequency == 0:
                 try:
-                    new = pickle.loads(self.sock.recv())
-                    weight[:] = new
-                except Exception as ee:
-                    logging.info('cannot load new weights {}'.format(str(ee)))
+                    logging.info('send')
+                    self.sock.send(pickle.dumps((index, weight)))
+                    logging.info('send ok')
+                    # zmq documentation says this recv is necessary.
+                    # I have not tested without this recv.
+                    # TODO(smihir): try to see if the recv can be removed.
+                    try:
+                        new = pickle.loads(self.sock.recv())
+                        weight[:] = new
+                    except Exception as ee:
+                        logging.info('cannot load new weights {}'.format(str(ee)))
 
-            except Exception as e:
-                logging.info('cannot send model upstream: {}'.format(str(e)))
-                pass
+                except Exception as e:
+                    logging.info('cannot send model upstream: {}'.format(str(e)))
+                    pass
 
 
 def fit(args, network, data_loader, batch_end_callback=None):
@@ -163,7 +167,7 @@ def fit(args, network, data_loader, batch_end_callback=None):
     epoch_size = args.num_examples / args.batch_size
 
     if args.kv_store == 'dist_sync':
-        epoch_size /= kv.num_workers
+        epoch_size /= (kv.num_workers * args.num_datacenters)
         model_args['epoch_size'] = epoch_size
 
     if 'lr_factor' in args and args.lr_factor < 1:
